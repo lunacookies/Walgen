@@ -1,0 +1,2 @@
+@interface InspectorViewController : NSViewController
+@end
