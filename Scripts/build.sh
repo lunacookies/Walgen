@@ -36,7 +36,7 @@ xcrun metal \
 
 cp "Data/Walgen.entitlements" "Build/Walgen.entitlements"
 /usr/libexec/PlistBuddy -c 'Add :com.apple.security.get-task-allow bool YES' \
-	Build/Walgen.entitlements
+	"Build/Walgen.entitlements"
 codesign \
 	--sign - \
 	--entitlements "Build/Walgen.entitlements" \
