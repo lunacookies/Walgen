@@ -3,10 +3,12 @@
 @import simd;
 
 #include "AppDelegate.h"
-#include "MainView.h"
+#include "MainViewController.h"
+#include "PreviewView.h"
 
 #include "AppDelegate.m"
-#include "MainView.m"
+#include "MainViewController.m"
+#include "PreviewView.m"
 
 #define Breakpoint() (__builtin_debugtrap())
 #define Assert(condition) \

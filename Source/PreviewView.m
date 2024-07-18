@@ -8,7 +8,7 @@ typedef struct
 	simd_float2 resolution;
 } Arguments;
 
-@implementation MainView
+@implementation PreviewView
 {
 	id<MTLDevice> device;
 	id<MTLCommandQueue> commandQueue;
@@ -96,6 +96,11 @@ typedef struct
 - (void)updateIOSurface
 {
 	NSSize size = [self convertSizeToBacking:self.layer.frame.size];
+
+	if (size.width == 0 || size.height == 0)
+	{
+		return;
+	}
 
 	NSDictionary *properties = @{
 		(__bridge NSString *)kIOSurfaceWidth : @(size.width),

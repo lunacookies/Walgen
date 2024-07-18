@@ -21,7 +21,7 @@
 	window.title = @"Walgen";
 
 	[window makeKeyAndOrderFront:nil];
-	window.contentView = [[MainView alloc] init];
+	window.contentViewController = [[MainViewController alloc] init];
 
 	[NSApp activate];
 }
