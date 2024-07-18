@@ -13,7 +13,7 @@ typedef struct
 	uint32_t pixelSize;
 } Arguments;
 
-static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
+#define colorSpaceName kCGColorSpaceDisplayP3
 
 @implementation PreviewView
 {
@@ -79,7 +79,7 @@ static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 
 	[encoder setRenderPipelineState:pipelineState];
 
-	CGColorSpaceRef cgColorSpace = CGColorSpaceCreateWithName(*colorSpaceName);
+	CGColorSpaceRef cgColorSpace = CGColorSpaceCreateWithName(colorSpaceName);
 	NSColorSpace *colorSpace = [[NSColorSpace alloc] initWithCGColorSpace:cgColorSpace];
 	NSColor *backgroundColor =
 	        [wallpaperConfig.backgroundColor colorUsingColorSpace:colorSpace];
@@ -151,7 +151,7 @@ static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 	}
 
 	iosurface = IOSurfaceCreate((__bridge CFDictionaryRef)properties);
-	IOSurfaceSetValue(iosurface, kIOSurfaceColorSpace, *colorSpaceName);
+	IOSurfaceSetValue(iosurface, kIOSurfaceColorSpace, colorSpaceName);
 	texture = [device newTextureWithDescriptor:descriptor iosurface:iosurface plane:0];
 	texture.label = @"Layer Contents";
 

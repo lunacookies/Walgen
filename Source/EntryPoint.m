@@ -2,7 +2,7 @@
 @import Metal;
 @import simd;
 
-static const NSNotificationName wallpaperConfigChangedNotification =
+static NSNotificationName const wallpaperConfigChangedNotification =
         @"wallpaperConfigChangedNotification";
 
 #include "AppDelegate.h"
