@@ -1,3 +1,7 @@
+@interface
+MainViewController () <InspectorDelegate>
+@end
+
 @implementation MainViewController
 {
 	PreviewView *previewView;
@@ -40,9 +44,11 @@
 	                    backing:NSBackingStoreBuffered
 	                      defer:NO];
 
+	InspectorViewController *inspectorViewController = [[InspectorViewController alloc] init];
+	inspectorViewController.delegate = self;
+
 	// Prevent the inspector from being 500×500 by setting the view’s frame explicitly,
 	// for some reason.
-	InspectorViewController *inspectorViewController = [[InspectorViewController alloc] init];
 	inspectorViewController.view.frame = inspectorRect;
 	inspector.contentViewController = inspectorViewController;
 
@@ -52,6 +58,11 @@
 	            options:nil];
 
 	[inspector orderFront:nil];
+}
+
+- (void)backgroundColorDidChange:(NSColor *)color
+{
+	NSLog(@"%@", color);
 }
 
 @end

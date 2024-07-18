@@ -33,7 +33,7 @@
 
 - (void)backgroundColorDidChange:(NSColorWell *)backgroundColorWell
 {
-	NSLog(@"%@", backgroundColorWell.color);
+	[self.delegate backgroundColorDidChange:backgroundColorWell.color];
 }
 
 @end

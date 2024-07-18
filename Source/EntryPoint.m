@@ -3,6 +3,7 @@
 @import simd;
 
 #include "AppDelegate.h"
+#include "InspectorDelegate.h"
 #include "InspectorViewController.h"
 #include "MainViewController.h"
 #include "PreviewView.h"
