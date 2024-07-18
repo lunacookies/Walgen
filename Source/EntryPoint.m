@@ -15,8 +15,6 @@ CALayer (Private)
 typedef struct
 {
 	simd_float2 resolution;
-	simd_float2 position;
-	simd_float2 size;
 } Arguments;
 
 @interface MainView : NSView <CALayerDelegate>
@@ -30,9 +28,6 @@ typedef struct
 
 	IOSurfaceRef iosurface;
 	id<MTLTexture> texture;
-	simd_float2 mouseLocation;
-
-	NSTrackingArea *trackingArea;
 }
 
 - (instancetype)initWithFrame:(NSRect)frame
@@ -76,17 +71,14 @@ typedef struct
 	id<MTLRenderCommandEncoder> encoder =
 	        [commandBuffer renderCommandEncoderWithDescriptor:descriptor];
 
-	float scaleFactor = (float)self.window.backingScaleFactor;
-
 	[encoder setRenderPipelineState:pipelineState];
 
 	Arguments arguments = {0};
 	arguments.resolution.x = texture.width;
 	arguments.resolution.y = texture.height;
-	arguments.position = mouseLocation * scaleFactor;
-	arguments.size = (simd_float2){600, 600} * scaleFactor;
 
 	[encoder setVertexBytes:&arguments length:sizeof(arguments) atIndex:0];
+	[encoder setFragmentBytes:&arguments length:sizeof(arguments) atIndex:0];
 
 	[encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
 
@@ -96,29 +88,6 @@ typedef struct
 	[commandBuffer waitUntilCompleted];
 
 	[self.layer setContentsChanged];
-}
-
-- (void)mouseMoved:(NSEvent *)event
-{
-	NSPoint point = event.locationInWindow;
-	point.y = self.frame.size.height - point.y;
-	mouseLocation.x = (float)point.x;
-	mouseLocation.y = (float)point.y;
-	self.needsDisplay = YES;
-	[self.layer setNeedsDisplay];
-}
-
-- (void)updateTrackingAreas
-{
-	[super updateTrackingAreas];
-
-	[self removeTrackingArea:trackingArea];
-	trackingArea =
-	        [[NSTrackingArea alloc] initWithRect:self.bounds
-	                                     options:NSTrackingActiveAlways | NSTrackingMouseMoved
-	                                       owner:self
-	                                    userInfo:nil];
-	[self addTrackingArea:trackingArea];
 }
 
 - (void)layoutSublayersOfLayer:(CALayer *)layer
