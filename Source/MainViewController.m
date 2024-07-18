@@ -23,13 +23,15 @@
 - (void)viewDidAppear
 {
 	NSRect windowRect = [self.view.window contentRectForFrameRect:self.view.window.frame];
-	NSRect inspectorRect = windowRect;
 
+	NSRect inspectorRect = {0};
+
+	inspectorRect.origin = windowRect.origin;
 	inspectorRect.origin.x += windowRect.size.width + 24;
 	inspectorRect.origin.y += windowRect.size.height;
 
-	inspectorRect.size.width = 100;
-	inspectorRect.size.height = 100;
+	inspectorRect.size.width = 1;
+	inspectorRect.size.height = 1;
 	inspectorRect.origin.y -= inspectorRect.size.height;
 
 	inspector = [[NSPanel alloc]
