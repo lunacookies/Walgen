@@ -9,6 +9,7 @@ typedef struct
 	simd_float3 backgroundColor;
 	float noiseInfluence;
 	float noiseBias;
+	float noiseThreshold;
 	uint32_t pixelSize;
 } Arguments;
 
@@ -91,6 +92,7 @@ static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 	arguments.backgroundColor.b = (float)backgroundColor.blueComponent;
 	arguments.noiseInfluence = wallpaperConfig.noiseInfluence;
 	arguments.noiseBias = wallpaperConfig.noiseBias;
+	arguments.noiseThreshold = wallpaperConfig.noiseThreshold;
 	arguments.pixelSize = wallpaperConfig.pixelSize;
 
 	[encoder setVertexBytes:&arguments length:sizeof(arguments) atIndex:0];

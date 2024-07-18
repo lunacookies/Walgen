@@ -7,6 +7,7 @@ struct Arguments
 	float3 background_color;
 	float noise_influence;
 	float noise_bias;
+	float noise_threshold;
 	uint pixel_size;
 };
 
@@ -56,8 +57,11 @@ FragmentMain(RasterizerData input [[stage_in]], constant Arguments &arguments)
 	uint x = (uint)input.position.x / arguments.pixel_size;
 	uint y = (uint)input.position.y / arguments.pixel_size;
 	uint unique_index = y * ((uint)arguments.resolution.x / arguments.pixel_size) + x;
+
 	float random_float = RandFloat(unique_index);
 	random_float = clamp(pow(random_float, arguments.noise_bias), 0.f, 1.f);
+	random_float *= step(arguments.noise_threshold, random_float);
+
 	return float4(
 	        arguments.background_color * mix(1, random_float, arguments.noise_influence), 1);
 }
