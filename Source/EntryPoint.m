@@ -10,11 +10,6 @@
 #include "MainViewController.m"
 #include "PreviewView.m"
 
-#define Breakpoint() (__builtin_debugtrap())
-#define Assert(condition) \
-	if (!(condition)) \
-	Breakpoint()
-
 int32_t
 main(void)
 {
