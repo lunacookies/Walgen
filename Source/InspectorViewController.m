@@ -12,6 +12,9 @@
 	backgroundColorWell.target = self;
 	backgroundColorWell.action = @selector(backgroundColorDidChange:);
 
+	backgroundColorWell.color = NSColor.grayColor;
+	[self backgroundColorDidChange:backgroundColorWell];
+
 	gridView = [NSGridView gridViewWithViews:@[
 		@[ label, backgroundColorWell ],
 	]];

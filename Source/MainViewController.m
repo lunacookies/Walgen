@@ -62,7 +62,7 @@ MainViewController () <InspectorDelegate>
 
 - (void)backgroundColorDidChange:(NSColor *)color
 {
-	NSLog(@"%@", color);
+	previewView.backgroundColor = color;
 }
 
 @end

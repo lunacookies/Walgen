@@ -6,7 +6,10 @@ CALayer (Private)
 typedef struct
 {
 	simd_float2 resolution;
+	simd_float3 backgroundColor;
 } Arguments;
+
+static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 
 @implementation PreviewView
 {
@@ -16,6 +19,8 @@ typedef struct
 
 	IOSurfaceRef iosurface;
 	id<MTLTexture> texture;
+
+	NSColor *backgroundColor;
 }
 
 - (instancetype)initWithFrame:(NSRect)frame
@@ -35,7 +40,7 @@ typedef struct
 
 	MTLRenderPipelineColorAttachmentDescriptor *attachmentDescriptor =
 	        descriptor.colorAttachments[0];
-	attachmentDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
+	attachmentDescriptor.pixelFormat = MTLPixelFormatRGBA16Float;
 	attachmentDescriptor.blendingEnabled = YES;
 	attachmentDescriptor.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
 	attachmentDescriptor.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
@@ -54,7 +59,6 @@ typedef struct
 	MTLRenderPassDescriptor *descriptor = [[MTLRenderPassDescriptor alloc] init];
 	descriptor.colorAttachments[0].texture = texture;
 	descriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-	descriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1);
 
 	id<MTLRenderCommandEncoder> encoder =
 	        [commandBuffer renderCommandEncoderWithDescriptor:descriptor];
@@ -64,6 +68,9 @@ typedef struct
 	Arguments arguments = {0};
 	arguments.resolution.x = texture.width;
 	arguments.resolution.y = texture.height;
+	arguments.backgroundColor.r = (float)backgroundColor.redComponent;
+	arguments.backgroundColor.g = (float)backgroundColor.greenComponent;
+	arguments.backgroundColor.b = (float)backgroundColor.blueComponent;
 
 	[encoder setVertexBytes:&arguments length:sizeof(arguments) atIndex:0];
 	[encoder setFragmentBytes:&arguments length:sizeof(arguments) atIndex:0];
@@ -105,15 +112,15 @@ typedef struct
 	NSDictionary *properties = @{
 		(__bridge NSString *)kIOSurfaceWidth : @(size.width),
 		(__bridge NSString *)kIOSurfaceHeight : @(size.height),
-		(__bridge NSString *)kIOSurfaceBytesPerElement : @4,
-		(__bridge NSString *)kIOSurfacePixelFormat : @(kCVPixelFormatType_32BGRA),
+		(__bridge NSString *)kIOSurfaceBytesPerElement : @8,
+		(__bridge NSString *)kIOSurfacePixelFormat : @(kCVPixelFormatType_64RGBAHalf),
 	};
 
 	MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor alloc] init];
 	descriptor.width = (NSUInteger)size.width;
 	descriptor.height = (NSUInteger)size.height;
 	descriptor.usage = MTLTextureUsageRenderTarget;
-	descriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
+	descriptor.pixelFormat = MTLPixelFormatRGBA16Float;
 
 	if (iosurface != NULL)
 	{
@@ -121,10 +128,24 @@ typedef struct
 	}
 
 	iosurface = IOSurfaceCreate((__bridge CFDictionaryRef)properties);
+	IOSurfaceSetValue(iosurface, kIOSurfaceColorSpace, *colorSpaceName);
 	texture = [device newTextureWithDescriptor:descriptor iosurface:iosurface plane:0];
 	texture.label = @"Layer Contents";
 
 	self.layer.contents = (__bridge id)iosurface;
+}
+
+- (NSColor *)backgroundColor
+{
+	return backgroundColor;
+}
+
+- (void)setBackgroundColor:(NSColor *)backgroundColor_
+{
+	CGColorSpaceRef cgColorSpace = CGColorSpaceCreateWithName(*colorSpaceName);
+	NSColorSpace *colorSpace = [[NSColorSpace alloc] initWithCGColorSpace:cgColorSpace];
+	backgroundColor = [backgroundColor_ colorUsingColorSpace:colorSpace];
+	[self.layer setNeedsDisplay];
 }
 
 @end

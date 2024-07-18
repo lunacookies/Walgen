@@ -4,13 +4,13 @@ using namespace metal;
 struct Arguments
 {
 	float2 resolution;
+	float3 backgroundColor;
 };
 
 struct RasterizerData
 {
 	float4 position_ndc [[position]];
 	float2 position;
-	float4 color;
 };
 
 constant float2 positions[] = {
@@ -20,15 +20,6 @@ constant float2 positions[] = {
         float2(1, 1),
         float2(1, 0),
         float2(0, 0),
-};
-
-constant float4 colors[] = {
-        float4(1, 0, 0, 1),
-        float4(0, 1, 0, 1),
-        float4(0, 0, 1, 1),
-        float4(1, 0, 0, 1),
-        float4(0, 1, 0, 1),
-        float4(0, 0, 1, 1),
 };
 
 vertex RasterizerData
@@ -43,7 +34,6 @@ VertexMain(uint vertex_id [[vertex_id]], constant Arguments &arguments)
 	RasterizerData output = {};
 	output.position_ndc = vertex_position_ndc;
 	output.position = vertex_position;
-	output.color = colors[vertex_id];
 	return output;
 }
 
@@ -65,5 +55,5 @@ FragmentMain(RasterizerData input [[stage_in]], constant Arguments &arguments)
 	uint y = (uint)input.position.y / pixel_diameter;
 	uint unique_index = y * ((uint)arguments.resolution.x / pixel_diameter) + x;
 	float random_float = RandFloat(unique_index);
-	return input.color * pow(random_float, 0.3);
+	return float4(arguments.backgroundColor * random_float, 1);
 }
