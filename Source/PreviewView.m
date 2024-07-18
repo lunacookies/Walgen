@@ -8,6 +8,7 @@ typedef struct
 	simd_float2 resolution;
 	simd_float3 backgroundColor;
 	float noiseInfluence;
+	uint32_t pixelSize;
 } Arguments;
 
 static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
@@ -88,6 +89,7 @@ static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 	arguments.backgroundColor.g = (float)backgroundColor.greenComponent;
 	arguments.backgroundColor.b = (float)backgroundColor.blueComponent;
 	arguments.noiseInfluence = wallpaperConfig.noiseInfluence;
+	arguments.pixelSize = wallpaperConfig.pixelSize;
 
 	[encoder setVertexBytes:&arguments length:sizeof(arguments) atIndex:0];
 	[encoder setFragmentBytes:&arguments length:sizeof(arguments) atIndex:0];
