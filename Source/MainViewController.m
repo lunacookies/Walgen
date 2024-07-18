@@ -51,13 +51,11 @@
 	        [[InspectorViewController alloc] initWithWallpaperConfig:wallpaperConfig
 	                                              notificationCenter:notificationCenter];
 
-	// Prevent the inspector from being 500×500 by setting the view’s frame explicitly,
-	// for some reason.
 	inspectorViewController.view.frame = inspectorRect;
 	inspector.contentViewController = inspectorViewController;
 
 	[inspector bind:NSTitleBinding
-	           toObject:inspector.contentViewController
+	           toObject:inspectorViewController
 	        withKeyPath:@"title"
 	            options:nil];
 

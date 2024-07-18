@@ -25,10 +25,7 @@
 	mainViewController.view.frame = contentRect;
 	window.contentViewController = mainViewController;
 
-	[window bind:NSTitleBinding
-	           toObject:window.contentViewController
-	        withKeyPath:@"title"
-	            options:nil];
+	[window bind:NSTitleBinding toObject:mainViewController withKeyPath:@"title" options:nil];
 
 	[NSApp activate];
 }

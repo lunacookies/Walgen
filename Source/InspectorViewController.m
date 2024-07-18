@@ -13,7 +13,7 @@
 - (instancetype)initWithWallpaperConfig:(WallpaperConfig *)wallpaperConfig_
                      notificationCenter:(NSNotificationCenter *)notificationCenter_
 {
-	self = [super init];
+	self = [self init];
 	wallpaperConfig = wallpaperConfig_;
 	notificationCenter = notificationCenter_;
 	return self;
