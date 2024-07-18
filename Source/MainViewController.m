@@ -65,4 +65,9 @@ MainViewController () <InspectorDelegate>
 	previewView.backgroundColor = color;
 }
 
+- (void)noiseInfluenceDidChange:(float)influence
+{
+	previewView.noiseInfluence = influence;
+}
+
 @end

@@ -7,6 +7,7 @@ typedef struct
 {
 	simd_float2 resolution;
 	simd_float3 backgroundColor;
+	float noiseInfluence;
 } Arguments;
 
 static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
@@ -21,6 +22,7 @@ static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 	id<MTLTexture> texture;
 
 	NSColor *backgroundColor;
+	float noiseInfluence;
 }
 
 - (instancetype)initWithFrame:(NSRect)frame
@@ -71,6 +73,7 @@ static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 	arguments.backgroundColor.r = (float)backgroundColor.redComponent;
 	arguments.backgroundColor.g = (float)backgroundColor.greenComponent;
 	arguments.backgroundColor.b = (float)backgroundColor.blueComponent;
+	arguments.noiseInfluence = noiseInfluence;
 
 	[encoder setVertexBytes:&arguments length:sizeof(arguments) atIndex:0];
 	[encoder setFragmentBytes:&arguments length:sizeof(arguments) atIndex:0];
@@ -145,6 +148,17 @@ static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 	CGColorSpaceRef cgColorSpace = CGColorSpaceCreateWithName(*colorSpaceName);
 	NSColorSpace *colorSpace = [[NSColorSpace alloc] initWithCGColorSpace:cgColorSpace];
 	backgroundColor = [backgroundColor_ colorUsingColorSpace:colorSpace];
+	[self.layer setNeedsDisplay];
+}
+
+- (float)noiseInfluence
+{
+	return noiseInfluence;
+}
+
+- (void)setNoiseInfluence:(float)noiseInfluence_
+{
+	noiseInfluence = noiseInfluence_;
 	[self.layer setNeedsDisplay];
 }
 

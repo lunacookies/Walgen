@@ -4,7 +4,8 @@ using namespace metal;
 struct Arguments
 {
 	float2 resolution;
-	float3 backgroundColor;
+	float3 background_color;
+	float noise_influence;
 };
 
 struct RasterizerData
@@ -55,5 +56,6 @@ FragmentMain(RasterizerData input [[stage_in]], constant Arguments &arguments)
 	uint y = (uint)input.position.y / pixel_diameter;
 	uint unique_index = y * ((uint)arguments.resolution.x / pixel_diameter) + x;
 	float random_float = RandFloat(unique_index);
-	return float4(arguments.backgroundColor * random_float, 1);
+	return float4(
+	        arguments.background_color * mix(1, random_float, arguments.noise_influence), 1);
 }
