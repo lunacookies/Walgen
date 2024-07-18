@@ -11,7 +11,7 @@
 	                              NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
 
 	NSScreen *screen = NSScreen.mainScreen;
-	NSRect contentRect = CenteredContentRect(NSMakeSize(600, 700), styleMask, screen);
+	NSRect contentRect = CenteredContentRect(NSMakeSize(800, 500), styleMask, screen);
 
 	window = [[NSWindow alloc] initWithContentRect:contentRect
 	                                     styleMask:styleMask
@@ -20,7 +20,10 @@
 	                                        screen:screen];
 
 	[window makeKeyAndOrderFront:nil];
-	window.contentViewController = [[MainViewController alloc] init];
+
+	MainViewController *mainViewController = [[MainViewController alloc] init];
+	mainViewController.view.frame = contentRect;
+	window.contentViewController = mainViewController;
 
 	[window bind:NSTitleBinding
 	           toObject:window.contentViewController
