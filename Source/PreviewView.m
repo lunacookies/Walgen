@@ -21,13 +21,22 @@ static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 	IOSurfaceRef iosurface;
 	id<MTLTexture> texture;
 
-	NSColor *backgroundColor;
-	float noiseInfluence;
+	WallpaperConfig *wallpaperConfig;
+	NSNotificationCenter *notificationCenter;
 }
 
-- (instancetype)initWithFrame:(NSRect)frame
+- (instancetype)initWithWallpaperConfig:(WallpaperConfig *)wallpaperConfig_
+                     notificationCenter:(NSNotificationCenter *)notificationCenter_
 {
-	self = [super initWithFrame:frame];
+	self = [super init];
+
+	wallpaperConfig = wallpaperConfig_;
+	notificationCenter = notificationCenter_;
+	[notificationCenter addObserver:self
+	                       selector:@selector(configWasUpdated:)
+	                           name:wallpaperConfigChangedNotification
+	                         object:nil];
+
 	self.layer = [CALayer layer];
 	self.layer.delegate = self;
 	self.wantsLayer = YES;
@@ -67,13 +76,18 @@ static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 
 	[encoder setRenderPipelineState:pipelineState];
 
+	CGColorSpaceRef cgColorSpace = CGColorSpaceCreateWithName(*colorSpaceName);
+	NSColorSpace *colorSpace = [[NSColorSpace alloc] initWithCGColorSpace:cgColorSpace];
+	NSColor *backgroundColor =
+	        [wallpaperConfig.backgroundColor colorUsingColorSpace:colorSpace];
+
 	Arguments arguments = {0};
 	arguments.resolution.x = texture.width;
 	arguments.resolution.y = texture.height;
 	arguments.backgroundColor.r = (float)backgroundColor.redComponent;
 	arguments.backgroundColor.g = (float)backgroundColor.greenComponent;
 	arguments.backgroundColor.b = (float)backgroundColor.blueComponent;
-	arguments.noiseInfluence = noiseInfluence;
+	arguments.noiseInfluence = wallpaperConfig.noiseInfluence;
 
 	[encoder setVertexBytes:&arguments length:sizeof(arguments) atIndex:0];
 	[encoder setFragmentBytes:&arguments length:sizeof(arguments) atIndex:0];
@@ -138,27 +152,8 @@ static const CFStringRef *const colorSpaceName = &kCGColorSpaceDisplayP3;
 	self.layer.contents = (__bridge id)iosurface;
 }
 
-- (NSColor *)backgroundColor
+- (void)configWasUpdated:(id)sender
 {
-	return backgroundColor;
-}
-
-- (void)setBackgroundColor:(NSColor *)backgroundColor_
-{
-	CGColorSpaceRef cgColorSpace = CGColorSpaceCreateWithName(*colorSpaceName);
-	NSColorSpace *colorSpace = [[NSColorSpace alloc] initWithCGColorSpace:cgColorSpace];
-	backgroundColor = [backgroundColor_ colorUsingColorSpace:colorSpace];
-	[self.layer setNeedsDisplay];
-}
-
-- (float)noiseInfluence
-{
-	return noiseInfluence;
-}
-
-- (void)setNoiseInfluence:(float)noiseInfluence_
-{
-	noiseInfluence = noiseInfluence_;
 	[self.layer setNeedsDisplay];
 }
 

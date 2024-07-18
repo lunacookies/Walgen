@@ -1,0 +1,2 @@
+@implementation WallpaperConfig
+@end

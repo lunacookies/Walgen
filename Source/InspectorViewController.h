@@ -1,3 +1,4 @@
 @interface InspectorViewController : NSViewController
-@property(weak) id<InspectorDelegate> delegate;
+- (instancetype)initWithWallpaperConfig:(WallpaperConfig *)wallpaperConfig
+					 notificationCenter:(NSNotificationCenter *)notificationCenter;
 @end

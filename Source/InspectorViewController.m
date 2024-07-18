@@ -1,25 +1,35 @@
 @implementation InspectorViewController
 {
+	WallpaperConfig *wallpaperConfig;
+	NSNotificationCenter *notificationCenter;
 	NSGridView *gridView;
+	NSColorWell *backgroundColorWell;
+	NSSlider *noiseInfluenceSlider;
+}
+
+- (instancetype)initWithWallpaperConfig:(WallpaperConfig *)wallpaperConfig_
+                     notificationCenter:(NSNotificationCenter *)notificationCenter_
+{
+	self = [super init];
+	wallpaperConfig = wallpaperConfig_;
+	notificationCenter = notificationCenter_;
+	return self;
 }
 
 - (void)viewDidLoad
 {
 	self.title = @"Inspector";
 
-	NSColorWell *backgroundColorWell = [NSColorWell colorWellWithStyle:NSColorWellStyleDefault];
+	backgroundColorWell = [NSColorWell colorWellWithStyle:NSColorWellStyleDefault];
 	backgroundColorWell.target = self;
-	backgroundColorWell.action = @selector(backgroundColorDidChange:);
+	backgroundColorWell.action = @selector(configNeedsUpdate:);
 	backgroundColorWell.color = NSColor.grayColor;
-	[self backgroundColorDidChange:backgroundColorWell];
 
-	NSSlider *noiseInfluenceSlider =
-	        [NSSlider sliderWithValue:1
-	                         minValue:0
-	                         maxValue:1
-	                           target:self
-	                           action:@selector(noiseInfluenceDidChange:)];
-	[self noiseInfluenceDidChange:noiseInfluenceSlider];
+	noiseInfluenceSlider = [NSSlider sliderWithValue:1
+	                                        minValue:0
+	                                        maxValue:1
+	                                          target:self
+	                                          action:@selector(configNeedsUpdate:)];
 
 	gridView = [NSGridView gridViewWithViews:@[
 		@[ [NSTextField labelWithString:@"Background Color:"], backgroundColorWell ],
@@ -44,16 +54,16 @@
 
 		[noiseInfluenceSlider.widthAnchor constraintGreaterThanOrEqualToConstant:100],
 	]];
+
+	[self configNeedsUpdate:nil];
 }
 
-- (void)backgroundColorDidChange:(NSColorWell *)backgroundColorWell
+- (void)configNeedsUpdate:(id)sender
 {
-	[self.delegate backgroundColorDidChange:backgroundColorWell.color];
-}
+	wallpaperConfig.backgroundColor = backgroundColorWell.color;
+	wallpaperConfig.noiseInfluence = noiseInfluenceSlider.floatValue;
 
-- (void)noiseInfluenceDidChange:(NSSlider *)slider
-{
-	[self.delegate noiseInfluenceDidChange:slider.floatValue];
+	[notificationCenter postNotificationName:wallpaperConfigChangedNotification object:nil];
 }
 
 @end

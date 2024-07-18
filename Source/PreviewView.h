@@ -1,5 +1,5 @@
 @interface PreviewView : NSView <CALayerDelegate>
-@property NSColor *backgroundColor;
-@property float noiseInfluence;
+- (instancetype)initWithWallpaperConfig:(WallpaperConfig *)wallpaperConfig
+					 notificationCenter:(NSNotificationCenter *)notificationCenter;
 @end
 

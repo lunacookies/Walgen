@@ -1,18 +1,21 @@
-@interface
-MainViewController () <InspectorDelegate>
-@end
-
 @implementation MainViewController
 {
 	PreviewView *previewView;
 	NSPanel *inspector;
+
+	WallpaperConfig *wallpaperConfig;
+	NSNotificationCenter *notificationCenter;
 }
 
 - (void)viewDidLoad
 {
 	self.title = @"Preview";
 
-	previewView = [[PreviewView alloc] init];
+	wallpaperConfig = [[WallpaperConfig alloc] init];
+	notificationCenter = [[NSNotificationCenter alloc] init];
+
+	previewView = [[PreviewView alloc] initWithWallpaperConfig:wallpaperConfig
+	                                        notificationCenter:notificationCenter];
 
 	previewView.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview:previewView];
@@ -44,8 +47,9 @@ MainViewController () <InspectorDelegate>
 	                    backing:NSBackingStoreBuffered
 	                      defer:NO];
 
-	InspectorViewController *inspectorViewController = [[InspectorViewController alloc] init];
-	inspectorViewController.delegate = self;
+	InspectorViewController *inspectorViewController =
+	        [[InspectorViewController alloc] initWithWallpaperConfig:wallpaperConfig
+	                                              notificationCenter:notificationCenter];
 
 	// Prevent the inspector from being 500×500 by setting the view’s frame explicitly,
 	// for some reason.
@@ -58,16 +62,6 @@ MainViewController () <InspectorDelegate>
 	            options:nil];
 
 	[inspector orderFront:nil];
-}
-
-- (void)backgroundColorDidChange:(NSColor *)color
-{
-	previewView.backgroundColor = color;
-}
-
-- (void)noiseInfluenceDidChange:(float)influence
-{
-	previewView.noiseInfluence = influence;
 }
 
 @end
