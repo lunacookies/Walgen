@@ -18,10 +18,14 @@
 	                                       backing:NSBackingStoreBuffered
 	                                         defer:NO
 	                                        screen:screen];
-	window.title = @"Walgen";
 
 	[window makeKeyAndOrderFront:nil];
 	window.contentViewController = [[MainViewController alloc] init];
+
+	[window bind:NSTitleBinding
+	           toObject:window.contentViewController
+	        withKeyPath:@"title"
+	            options:nil];
 
 	[NSApp activate];
 }

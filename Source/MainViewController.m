@@ -10,7 +10,7 @@ MainViewController () <InspectorDelegate>
 
 - (void)viewDidLoad
 {
-	[super viewDidLoad];
+	self.title = @"Preview";
 
 	previewView = [[PreviewView alloc] init];
 
