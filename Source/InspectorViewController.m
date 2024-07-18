@@ -5,6 +5,7 @@
 	NSGridView *gridView;
 	NSColorWell *backgroundColorWell;
 	NSSlider *noiseInfluenceSlider;
+	NSSlider *noiseBiasSlider;
 	NSSlider *pixelSizeSlider;
 }
 
@@ -32,6 +33,12 @@
 	                                          target:self
 	                                          action:@selector(configNeedsUpdate:)];
 
+	noiseBiasSlider = [NSSlider sliderWithValue:1
+	                                   minValue:0.001
+	                                   maxValue:1
+	                                     target:self
+	                                     action:@selector(configNeedsUpdate:)];
+
 	uint32_t pixelSizeMinimum = 1;
 	uint32_t pixelSizeMaximum = 4;
 	pixelSizeSlider = [NSSlider sliderWithValue:pixelSizeMinimum
@@ -45,6 +52,7 @@
 	gridView = [NSGridView gridViewWithViews:@[
 		@[ [NSTextField labelWithString:@"Background Color:"], backgroundColorWell ],
 		@[ [NSTextField labelWithString:@"Noise Influence:"], noiseInfluenceSlider ],
+		@[ [NSTextField labelWithString:@"Noise Bias:"], noiseBiasSlider ],
 		@[ [NSTextField labelWithString:@"Pixel Size:"], pixelSizeSlider ],
 	]];
 	gridView.rowAlignment = NSGridRowAlignmentFirstBaseline;
@@ -74,6 +82,7 @@
 {
 	wallpaperConfig.backgroundColor = backgroundColorWell.color;
 	wallpaperConfig.noiseInfluence = noiseInfluenceSlider.floatValue;
+	wallpaperConfig.noiseBias = noiseBiasSlider.floatValue;
 	wallpaperConfig.pixelSize = (uint32_t)pixelSizeSlider.integerValue;
 
 	[notificationCenter postNotificationName:wallpaperConfigChangedNotification object:nil];
