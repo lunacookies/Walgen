@@ -10,6 +10,8 @@ static NSNotificationName const layerColorChangedNotification = @"layerColorChan
 static NSNotificationName const layerSelectionChangedNotification =
         @"layerSelectionChangedNotification";
 
+#define colorSpaceName kCGColorSpaceDisplayP3
+
 #define Min(x, y) (((x) < (y)) ? (x) : (y))
 #define Max(x, y) (((x) > (y)) ? (x) : (y))
 
@@ -18,6 +20,7 @@ static NSNotificationName const layerSelectionChangedNotification =
 #include "InspectorViewController.h"
 #include "LayersViewController.h"
 #include "MainViewController.h"
+#include "Renderer.h"
 #include "PreviewView.h"
 
 #include "AppDelegate.m"
@@ -25,6 +28,7 @@ static NSNotificationName const layerSelectionChangedNotification =
 #include "InspectorViewController.m"
 #include "LayersViewController.m"
 #include "MainViewController.m"
+#include "Renderer.m"
 #include "PreviewView.m"
 
 int32_t
