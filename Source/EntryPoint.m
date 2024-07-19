@@ -5,6 +5,8 @@
 static NSNotificationName const wallpaperConfigChangedNotification =
         @"wallpaperConfigChangedNotification";
 
+static NSNotificationName const layerColorChangedNotification = @"layerColorChangedNotification";
+
 static NSNotificationName const layerSelectionChangedNotification =
         @"layerSelectionChangedNotification";
 

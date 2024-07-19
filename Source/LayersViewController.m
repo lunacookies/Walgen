@@ -1,25 +1,57 @@
 @interface LayerCellView : NSView
+@property NSColor *layerColor;
 @end
 
 static NSUserInterfaceItemIdentifier const layerCellViewIdentifier = @"LayerCellView";
 
 @implementation LayerCellView
+{
+	NSColor *layerColor;
+	NSBox *coloredSquare;
+}
 
 - (instancetype)initWithFrame:(NSRect)frame
 {
 	self = [super initWithFrame:frame];
 	self.identifier = layerCellViewIdentifier;
 
+	coloredSquare = [[NSBox alloc] init];
+	coloredSquare.boxType = NSBoxCustom;
+	coloredSquare.borderWidth = 1;
+	coloredSquare.borderColor = [NSColor colorWithSRGBRed:1 green:1 blue:1 alpha:0.2f];
+	coloredSquare.cornerRadius = 4;
+
 	NSTextField *label = [NSTextField labelWithString:@"hello world"];
+
+	[self addSubview:coloredSquare];
 	[self addSubview:label];
+	coloredSquare.translatesAutoresizingMaskIntoConstraints = NO;
 	label.translatesAutoresizingMaskIntoConstraints = NO;
 	[NSLayoutConstraint activateConstraints:@[
-		[label.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
+		[coloredSquare.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
+		[coloredSquare.trailingAnchor constraintEqualToAnchor:label.leadingAnchor
+		                                             constant:-4],
 		[label.trailingAnchor constraintEqualToAnchor:self.trailingAnchor],
-		[label.centerYAnchor constraintEqualToAnchor:self.centerYAnchor],
+
+		[coloredSquare.centerYAnchor constraintEqualToAnchor:self.centerYAnchor],
+		[label.centerYAnchor constraintEqualToAnchor:coloredSquare.centerYAnchor],
+
+		[coloredSquare.widthAnchor constraintEqualToConstant:16],
+		[coloredSquare.heightAnchor constraintEqualToAnchor:coloredSquare.widthAnchor],
 	]];
 
 	return self;
+}
+
+- (NSColor *)layerColor
+{
+	return layerColor;
+}
+
+- (void)setLayerColor:(NSColor *)layerColor_
+{
+	layerColor = layerColor_;
+	coloredSquare.fillColor = layerColor;
 }
 
 @end
@@ -43,6 +75,12 @@ LayersViewController () <NSTableViewDelegate, NSTableViewDataSource>
 	self.title = @"Layers";
 	wallpaperConfig = wallpaperConfig_;
 	notificationCenter = notificationCenter_;
+
+	[notificationCenter addObserver:self
+	                       selector:@selector(layerColorDidChange:)
+	                           name:layerColorChangedNotification
+	                         object:nil];
+
 	return self;
 }
 
@@ -106,7 +144,17 @@ LayersViewController () <NSTableViewDelegate, NSTableViewDataSource>
 		view = [[LayerCellView alloc] init];
 	}
 
+	WallpaperLayer *layer = [self tableView:tableView
+	              objectValueForTableColumn:tableColumn
+	                                    row:row];
+	view.layerColor = layer.backgroundColor;
+
 	return view;
+}
+
+- (void)layerColorDidChange:(NSNotification *)notification
+{
+	[tableView reloadData];
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification

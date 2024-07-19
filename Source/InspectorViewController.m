@@ -137,6 +137,11 @@
 		return;
 	}
 
+	if (sender == backgroundColorWell)
+	{
+		[notificationCenter postNotificationName:layerColorChangedNotification object:nil];
+	}
+
 	WallpaperLayer *layer = wallpaperConfig.layers[(NSUInteger)selectedLayerIndex];
 	layer.backgroundColor = backgroundColorWell.color;
 	layer.noiseInfluence = noiseInfluenceSlider.floatValue;
