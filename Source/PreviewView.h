@@ -1,5 +1,4 @@
 @interface PreviewView : NSView <CALayerDelegate>
 - (instancetype)initWithWallpaperConfig:(WallpaperConfig *)wallpaperConfig
-					 notificationCenter:(NSNotificationCenter *)notificationCenter;
+                     notificationCenter:(NSNotificationCenter *)notificationCenter;
 @end
-
