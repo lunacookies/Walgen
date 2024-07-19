@@ -8,6 +8,9 @@ static NSNotificationName const wallpaperConfigChangedNotification =
 static NSNotificationName const layerSelectionChangedNotification =
         @"layerSelectionChangedNotification";
 
+#define Min(x, y) (((x) < (y)) ? (x) : (y))
+#define Max(x, y) (((x) > (y)) ? (x) : (y))
+
 #include "AppDelegate.h"
 #include "WallpaperConfig.h"
 #include "InspectorViewController.h"

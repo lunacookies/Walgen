@@ -12,16 +12,7 @@
 {
 	self.title = @"Preview";
 
-	WallpaperLayer *layer = [[WallpaperLayer alloc] init];
-	layer.backgroundColor = NSColor.redColor;
-	layer.noiseInfluence = 1;
-	layer.noiseBias = 0.5f;
-	layer.noiseThreshold = 0;
-	layer.pixelSize = 1;
-
 	wallpaperConfig = [[WallpaperConfig alloc] init];
-	wallpaperConfig.layers = @[ layer ];
-
 	notificationCenter = [[NSNotificationCenter alloc] init];
 
 	previewView = [[PreviewView alloc] initWithWallpaperConfig:wallpaperConfig

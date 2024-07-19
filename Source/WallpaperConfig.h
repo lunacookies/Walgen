@@ -7,5 +7,5 @@
 @end
 
 @interface WallpaperConfig : NSObject
-@property NSArray<WallpaperLayer*> *layers;
+@property NSMutableArray<WallpaperLayer*> *layers;
 @end
