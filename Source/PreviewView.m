@@ -79,10 +79,11 @@ typedef struct
 
 	[encoder setRenderPipelineState:pipelineState];
 
+	WallpaperLayer *wallpaperLayer = wallpaperConfig.layers[0];
+
 	CGColorSpaceRef cgColorSpace = CGColorSpaceCreateWithName(colorSpaceName);
 	NSColorSpace *colorSpace = [[NSColorSpace alloc] initWithCGColorSpace:cgColorSpace];
-	NSColor *backgroundColor =
-	        [wallpaperConfig.backgroundColor colorUsingColorSpace:colorSpace];
+	NSColor *backgroundColor = [wallpaperLayer.backgroundColor colorUsingColorSpace:colorSpace];
 
 	Arguments arguments = {0};
 	arguments.resolution.x = texture.width;
@@ -90,10 +91,10 @@ typedef struct
 	arguments.backgroundColor.r = (float)backgroundColor.redComponent;
 	arguments.backgroundColor.g = (float)backgroundColor.greenComponent;
 	arguments.backgroundColor.b = (float)backgroundColor.blueComponent;
-	arguments.noiseInfluence = wallpaperConfig.noiseInfluence;
-	arguments.noiseBias = wallpaperConfig.noiseBias;
-	arguments.noiseThreshold = wallpaperConfig.noiseThreshold;
-	arguments.pixelSize = wallpaperConfig.pixelSize;
+	arguments.noiseInfluence = wallpaperLayer.noiseInfluence;
+	arguments.noiseBias = wallpaperLayer.noiseBias;
+	arguments.noiseThreshold = wallpaperLayer.noiseThreshold;
+	arguments.pixelSize = wallpaperLayer.pixelSize;
 
 	[encoder setVertexBytes:&arguments length:sizeof(arguments) atIndex:0];
 	[encoder setFragmentBytes:&arguments length:sizeof(arguments) atIndex:0];

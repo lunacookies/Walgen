@@ -2,6 +2,7 @@
 {
 	PreviewView *previewView;
 	NSPanel *inspector;
+	NSPanel *layersPanel;
 
 	WallpaperConfig *wallpaperConfig;
 	NSNotificationCenter *notificationCenter;
@@ -11,7 +12,16 @@
 {
 	self.title = @"Preview";
 
+	WallpaperLayer *layer = [[WallpaperLayer alloc] init];
+	layer.backgroundColor = NSColor.redColor;
+	layer.noiseInfluence = 1;
+	layer.noiseBias = 0.5f;
+	layer.noiseThreshold = 0;
+	layer.pixelSize = 1;
+
 	wallpaperConfig = [[WallpaperConfig alloc] init];
+	wallpaperConfig.layers = @[ layer ];
+
 	notificationCenter = [[NSNotificationCenter alloc] init];
 
 	previewView = [[PreviewView alloc] initWithWallpaperConfig:wallpaperConfig
@@ -29,20 +39,23 @@
 
 - (void)viewDidAppear
 {
-	NSRect windowRect = [self.view.window contentRectForFrameRect:self.view.window.frame];
+	CGFloat panelMargin = 24;
 
-	NSRect inspectorRect = {0};
+	NSRect windowContentRect =
+	        [self.view.window contentRectForFrameRect:self.view.window.frame];
 
-	inspectorRect.origin = windowRect.origin;
-	inspectorRect.origin.x += windowRect.size.width + 24;
-	inspectorRect.origin.y += windowRect.size.height;
+	NSRect inspectorContentRect = {0};
 
-	inspectorRect.size.width = 1;
-	inspectorRect.size.height = 1;
-	inspectorRect.origin.y -= inspectorRect.size.height;
+	inspectorContentRect.origin = windowContentRect.origin;
+	inspectorContentRect.origin.x += windowContentRect.size.width + panelMargin;
+	inspectorContentRect.origin.y += windowContentRect.size.height;
+
+	inspectorContentRect.size.width = 1;
+	inspectorContentRect.size.height = 1;
+	inspectorContentRect.origin.y -= inspectorContentRect.size.height;
 
 	inspector = [[NSPanel alloc]
-	        initWithContentRect:inspectorRect
+	        initWithContentRect:inspectorContentRect
 	                  styleMask:NSWindowStyleMaskUtilityWindow | NSWindowStyleMaskTitled
 	                    backing:NSBackingStoreBuffered
 	                      defer:NO];
@@ -50,8 +63,7 @@
 	InspectorViewController *inspectorViewController =
 	        [[InspectorViewController alloc] initWithWallpaperConfig:wallpaperConfig
 	                                              notificationCenter:notificationCenter];
-
-	inspectorViewController.view.frame = inspectorRect;
+	inspectorViewController.view.frame = inspectorContentRect;
 	inspector.contentViewController = inspectorViewController;
 
 	[inspector bind:NSTitleBinding
@@ -60,6 +72,37 @@
 	            options:nil];
 
 	[inspector orderFront:nil];
+
+	NSRect layersPanelFrameRect = {0};
+
+	layersPanelFrameRect.size.width = inspectorViewController.view.frame.size.width;
+	layersPanelFrameRect.size.height = 300;
+
+	layersPanelFrameRect.origin = inspector.frame.origin;
+	layersPanelFrameRect.origin.y -= layersPanelFrameRect.size.height + panelMargin;
+
+	NSWindowStyleMask layersPanelStyleMask =
+	        NSWindowStyleMaskUtilityWindow | NSWindowStyleMaskTitled;
+	NSRect layersPanelContentRect = [NSPanel contentRectForFrameRect:layersPanelFrameRect
+	                                                       styleMask:layersPanelStyleMask];
+
+	layersPanel = [[NSPanel alloc] initWithContentRect:layersPanelContentRect
+	                                         styleMask:layersPanelStyleMask
+	                                           backing:NSBackingStoreBuffered
+	                                             defer:NO];
+
+	LayersViewController *layersViewController =
+	        [[LayersViewController alloc] initWithWallpaperConfig:wallpaperConfig
+	                                           notificationCenter:notificationCenter];
+	layersViewController.view.frame = layersPanelContentRect;
+	layersPanel.contentViewController = layersViewController;
+
+	[layersPanel bind:NSTitleBinding
+	           toObject:layersViewController
+	        withKeyPath:@"title"
+	            options:nil];
+
+	[layersPanel orderFront:nil];
 }
 
 @end

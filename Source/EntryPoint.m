@@ -5,15 +5,20 @@
 static NSNotificationName const wallpaperConfigChangedNotification =
         @"wallpaperConfigChangedNotification";
 
+static NSNotificationName const layerSelectionChangedNotification =
+        @"layerSelectionChangedNotification";
+
 #include "AppDelegate.h"
 #include "WallpaperConfig.h"
 #include "InspectorViewController.h"
+#include "LayersViewController.h"
 #include "MainViewController.h"
 #include "PreviewView.h"
 
 #include "AppDelegate.m"
 #include "WallpaperConfig.m"
 #include "InspectorViewController.m"
+#include "LayersViewController.m"
 #include "MainViewController.m"
 #include "PreviewView.m"
 
