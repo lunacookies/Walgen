@@ -1,6 +1,5 @@
 typedef struct
 {
-	simd_float2 resolution;
 	simd_float3 backgroundColor;
 	float noiseInfluence;
 	float noiseBias;
@@ -106,8 +105,6 @@ typedef struct
 	NSColor *backgroundColor = [wallpaperLayer.backgroundColor colorUsingColorSpace:colorSpace];
 
 	Arguments arguments = {0};
-	arguments.resolution.x = texture.width;
-	arguments.resolution.y = texture.height;
 	arguments.backgroundColor.r = (float)backgroundColor.redComponent;
 	arguments.backgroundColor.g = (float)backgroundColor.greenComponent;
 	arguments.backgroundColor.b = (float)backgroundColor.blueComponent;
@@ -118,7 +115,6 @@ typedef struct
 	arguments.noiseTexture = noiseTexture.gpuResourceID;
 
 	[encoder useResource:noiseTexture usage:MTLResourceUsageRead stages:MTLRenderStageFragment];
-	[encoder setVertexBytes:&arguments length:sizeof(arguments) atIndex:0];
 	[encoder setFragmentBytes:&arguments length:sizeof(arguments) atIndex:0];
 
 	[encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];

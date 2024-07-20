@@ -22,7 +22,6 @@ GenerateNoise(uint2 position_in_grid [[thread_position_in_grid]],
 
 struct Arguments
 {
-	float2 resolution;
 	float3 background_color;
 	float noise_influence;
 	float noise_bias;
@@ -46,13 +45,10 @@ constant float2 positions[] = {
 };
 
 vertex RasterizerData
-VertexMain(uint vertex_id [[vertex_id]], constant Arguments &arguments)
+VertexMain(uint vertex_id [[vertex_id]])
 {
-	float2 vertex_position = arguments.resolution * positions[vertex_id];
-
 	float4 vertex_position_ndc = float4(0, 0, 0, 1);
-	vertex_position_ndc.xy = 2 * (vertex_position / arguments.resolution) - 1;
-	vertex_position_ndc.y *= -1;
+	vertex_position_ndc.xy = 2 * positions[vertex_id] - 1;
 
 	RasterizerData output = {};
 	output.position = vertex_position_ndc;
