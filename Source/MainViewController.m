@@ -96,4 +96,77 @@
 	[layersPanel orderFront:nil];
 }
 
+- (void)export:(id)sender
+{
+	NSSavePanel *savePanel = [NSSavePanel savePanel];
+	savePanel.nameFieldLabel = @"Export As:";
+	savePanel.allowedContentTypes = @[ UTTypePNG ];
+
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	dateFormatter.dateFormat = @"yyyy-MM-dd 'at' HH.mm";
+	savePanel.nameFieldStringValue = [NSString stringWithFormat:@"Wallpaper at %@.png",
+	                                           [dateFormatter stringFromDate:[NSDate date]]];
+
+	void (^completionHandler)(NSModalResponse) = ^(NSModalResponse response) {
+		if (response != NSModalResponseOK)
+		{
+			return;
+		}
+
+		MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor alloc] init];
+		descriptor.width = 3840;
+		descriptor.height = 2160;
+		descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+		descriptor.pixelFormat = MTLPixelFormatRGBA16Float;
+
+		id<MTLTexture> texture =
+		        [Renderer.sharedInstance.device newTextureWithDescriptor:descriptor];
+		texture.label = @"Export Texture";
+
+		[Renderer.sharedInstance renderToTexture:texture
+		                     withWallpaperConfig:wallpaperConfig];
+
+		CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(colorSpaceName);
+		CIImage *ciImage = [CIImage
+		        imageWithMTLTexture:texture
+		                    options:@{kCIImageColorSpace : (__bridge id)colorSpace}];
+
+		NSError *error = nil;
+
+		[[CIContext context] writePNGRepresentationOfImage:ciImage
+		                                             toURL:savePanel.URL
+		                                            format:kCIFormatRGBAh
+		                                        colorSpace:colorSpace
+		                                           options:@{}
+		                                             error:&error];
+
+		if (error != nil)
+		{
+			[self presentError:error
+			            modalForWindow:self.view.window
+			                  delegate:nil
+			        didPresentSelector:nil
+			               contextInfo:NULL];
+			return;
+		}
+
+		[NSFileManager.defaultManager
+		        setAttributes:@{NSFileExtensionHidden : @(savePanel.extensionHidden)}
+		         ofItemAtPath:savePanel.URL.path
+		                error:&error];
+
+		if (error != nil)
+		{
+			[self presentError:error
+			            modalForWindow:self.view.window
+			                  delegate:nil
+			        didPresentSelector:nil
+			               contextInfo:NULL];
+			return;
+		}
+	};
+
+	[savePanel beginSheetModalForWindow:self.view.window completionHandler:completionHandler];
+}
+
 @end

@@ -46,7 +46,7 @@ typedef struct
 	static Renderer *sharedInstance = nil;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
-	  sharedInstance = [[Renderer alloc] init];
+		sharedInstance = [[Renderer alloc] init];
 	});
 	return sharedInstance;
 }

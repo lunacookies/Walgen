@@ -1,5 +1,7 @@
 @import AppKit;
+@import CoreImage;
 @import Metal;
+@import UniformTypeIdentifiers;
 @import simd;
 
 static NSNotificationName const wallpaperConfigChangedNotification =

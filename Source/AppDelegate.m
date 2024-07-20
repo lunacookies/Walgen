@@ -105,6 +105,11 @@
 		fileMenu.title = @"File";
 		fileMenuItem.submenu = fileMenu;
 
+		NSMenuItem *exportMenuItem = [[NSMenuItem alloc] initWithTitle:@"Export"
+		                                                        action:@selector(export:)
+		                                                 keyEquivalent:@"e"];
+		[fileMenu addItem:exportMenuItem];
+
 		NSMenuItem *closeMenuItem =
 		        [[NSMenuItem alloc] initWithTitle:@"Close"
 		                                   action:@selector(performClose:)
