@@ -130,6 +130,7 @@ LayersViewController () <NSTableViewDelegate, NSTableViewDataSource>
 		[stackView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
 		[stackView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
 		[stackView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+		[scrollView.heightAnchor constraintGreaterThanOrEqualToConstant:100],
 	]];
 }
 

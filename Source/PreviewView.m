@@ -27,6 +27,11 @@ CALayer (Private)
 	self.layer.delegate = self;
 	self.wantsLayer = YES;
 
+	[NSLayoutConstraint activateConstraints:@[
+		[self.widthAnchor constraintGreaterThanOrEqualToConstant:300],
+		[self.heightAnchor constraintGreaterThanOrEqualToConstant:200],
+	]];
+
 	return self;
 }
 
