@@ -6,6 +6,7 @@ typedef struct
 	float noiseBias;
 	float noiseThreshold;
 	uint32_t pixelSize;
+	MTLResourceID noiseTexture;
 } Arguments;
 
 @implementation Renderer
@@ -13,6 +14,7 @@ typedef struct
 	id<MTLDevice> device;
 	id<MTLCommandQueue> commandQueue;
 	id<MTLRenderPipelineState> pipelineState;
+	id<MTLTexture> noiseTexture;
 }
 
 - (instancetype)init
@@ -23,20 +25,52 @@ typedef struct
 	commandQueue = [device newCommandQueue];
 
 	id<MTLLibrary> library = [device newDefaultLibrary];
-	MTLRenderPipelineDescriptor *descriptor = [[MTLRenderPipelineDescriptor alloc] init];
-	descriptor.vertexFunction = [library newFunctionWithName:@"VertexMain"];
-	descriptor.fragmentFunction = [library newFunctionWithName:@"FragmentMain"];
 
-	MTLRenderPipelineColorAttachmentDescriptor *attachmentDescriptor =
-	        descriptor.colorAttachments[0];
-	attachmentDescriptor.pixelFormat = MTLPixelFormatRGBA16Float;
-	attachmentDescriptor.blendingEnabled = YES;
-	attachmentDescriptor.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-	attachmentDescriptor.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-	attachmentDescriptor.sourceRGBBlendFactor = MTLBlendFactorOne;
-	attachmentDescriptor.sourceAlphaBlendFactor = MTLBlendFactorOne;
+	{
+		MTLRenderPipelineDescriptor *descriptor =
+		        [[MTLRenderPipelineDescriptor alloc] init];
+		descriptor.vertexFunction = [library newFunctionWithName:@"VertexMain"];
+		descriptor.fragmentFunction = [library newFunctionWithName:@"FragmentMain"];
 
-	pipelineState = [device newRenderPipelineStateWithDescriptor:descriptor error:nil];
+		MTLRenderPipelineColorAttachmentDescriptor *attachmentDescriptor =
+		        descriptor.colorAttachments[0];
+		attachmentDescriptor.pixelFormat = MTLPixelFormatRGBA16Float;
+		attachmentDescriptor.blendingEnabled = YES;
+		attachmentDescriptor.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+		attachmentDescriptor.destinationAlphaBlendFactor =
+		        MTLBlendFactorOneMinusSourceAlpha;
+		attachmentDescriptor.sourceRGBBlendFactor = MTLBlendFactorOne;
+		attachmentDescriptor.sourceAlphaBlendFactor = MTLBlendFactorOne;
+
+		pipelineState = [device newRenderPipelineStateWithDescriptor:descriptor error:nil];
+	}
+
+	{
+		MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor alloc] init];
+		descriptor.width = 1024;
+		descriptor.height = 1024;
+		descriptor.pixelFormat = MTLPixelFormatR8Unorm;
+		descriptor.usage = MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
+		descriptor.storageMode = MTLStorageModePrivate;
+		noiseTexture = [device newTextureWithDescriptor:descriptor];
+
+		id<MTLComputePipelineState> noiseGenerationPipelineState =
+		        [device newComputePipelineStateWithFunction:
+		                        [library newFunctionWithName:@"GenerateNoise"]
+		                                              error:nil];
+
+		id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+
+		id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+		[encoder setComputePipelineState:noiseGenerationPipelineState];
+		[encoder setTexture:noiseTexture atIndex:0];
+		[encoder dispatchThreads:MTLSizeMake(descriptor.width, descriptor.height, 1)
+		        threadsPerThreadgroup:MTLSizeMake(32, 32, 1)];
+		[encoder endEncoding];
+
+		[commandBuffer commit];
+		[commandBuffer waitUntilCompleted];
+	}
 
 	return self;
 }
@@ -81,7 +115,9 @@ typedef struct
 	arguments.noiseBias = wallpaperLayer.noiseBias;
 	arguments.noiseThreshold = wallpaperLayer.noiseThreshold;
 	arguments.pixelSize = wallpaperLayer.pixelSize;
+	arguments.noiseTexture = noiseTexture.gpuResourceID;
 
+	[encoder useResource:noiseTexture usage:MTLResourceUsageRead stages:MTLRenderStageFragment];
 	[encoder setVertexBytes:&arguments length:sizeof(arguments) atIndex:0];
 	[encoder setFragmentBytes:&arguments length:sizeof(arguments) atIndex:0];
 
