@@ -7,26 +7,11 @@
 {
 	[self populateMainMenu];
 
-	NSWindowStyleMask styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
-	                              NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
-
-	NSScreen *screen = NSScreen.mainScreen;
-	NSRect contentRect = CenteredContentRect(NSMakeSize(800, 500), styleMask, screen);
-
-	window = [[NSWindow alloc] initWithContentRect:contentRect
-	                                     styleMask:styleMask
-	                                       backing:NSBackingStoreBuffered
-	                                         defer:NO
-	                                        screen:screen];
-
-	[window makeKeyAndOrderFront:nil];
-
 	MainViewController *mainViewController = [[MainViewController alloc] init];
-	mainViewController.view.frame = contentRect;
-	window.contentViewController = mainViewController;
+	mainViewController.view.frame = NSMakeRect(0, 0, 800, 500);
 
-	[window bind:NSTitleBinding toObject:mainViewController withKeyPath:@"title" options:nil];
-
+	window = [NSWindow windowWithContentViewController:mainViewController];
+	[window makeKeyAndOrderFront:nil];
 	[NSApp activate];
 }
 
@@ -164,75 +149,6 @@
 	}
 
 	NSApp.mainMenu = mainMenu;
-}
-
-static NSRect
-CenteredContentRect(NSSize contentSize, NSWindowStyleMask styleMask, NSScreen *screen)
-{
-	NSEdgeInsets insets = VisibleScreenFrameEdgeInsets(screen);
-
-	// Ignore horizontal offsets (caused by those heathens who position the Dock
-	// on the left or right edge of the screen) to make sure the window is
-	// centered horizontally.
-	insets.left = 0;
-	insets.right = 0;
-
-	NSRect fullScreenFrame = {0};
-	fullScreenFrame.size = screen.frame.size;
-	NSRect screenFrame = InsetRect(fullScreenFrame, insets);
-
-	NSRect contentRect = {0};
-	contentRect.size = contentSize;
-	NSSize windowSize = [NSWindow frameRectForContentRect:contentRect styleMask:styleMask].size;
-
-	NSRect windowRect = {0};
-	windowRect.size = windowSize;
-	windowRect.origin = screenFrame.origin;
-
-	// 1:1 left gap to right gap ratio.
-	windowRect.origin.x += (screenFrame.size.width - windowSize.width) / 2;
-
-	// 1:2 top gap to bottom gap ratio.
-	windowRect.origin.y += (screenFrame.size.height - windowSize.height) / 3 * 2;
-
-	return [NSWindow contentRectForFrameRect:windowRect styleMask:styleMask];
-}
-
-static NSEdgeInsets
-VisibleScreenFrameEdgeInsets(NSScreen *screen)
-{
-	NSEdgeInsets result = {0};
-
-	NSRect fullScreenFrame = screen.frame;
-	NSRect visibleScreenFrame = screen.visibleFrame;
-
-	result.bottom = visibleScreenFrame.origin.y - fullScreenFrame.origin.y;
-	result.left = visibleScreenFrame.origin.x - fullScreenFrame.origin.x;
-
-	result.top = (fullScreenFrame.origin.y + fullScreenFrame.size.height) -
-	             (visibleScreenFrame.origin.y + visibleScreenFrame.size.height);
-	result.right = (fullScreenFrame.origin.x + fullScreenFrame.size.width) -
-	               (visibleScreenFrame.origin.x + visibleScreenFrame.size.width);
-
-	return result;
-}
-
-static NSRect
-InsetRect(NSRect rect, NSEdgeInsets insets)
-{
-	NSRect result = rect;
-
-	result.origin.x += insets.left;
-	result.size.width -= insets.left;
-
-	result.origin.y += insets.bottom;
-	result.size.height -= insets.bottom;
-
-	result.size.width -= insets.right;
-
-	result.size.height -= insets.top;
-
-	return result;
 }
 
 @end
