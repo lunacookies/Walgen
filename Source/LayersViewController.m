@@ -157,7 +157,17 @@ LayersViewController () <NSTableViewDelegate, NSTableViewDataSource>
 	[tableView reloadData];
 }
 
+- (void)tableViewSelectionIsChanging:(NSNotification *)notification
+{
+	[self selectionChanged];
+}
+
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
+{
+	[self selectionChanged];
+}
+
+- (void)selectionChanged
 {
 	[notificationCenter postNotificationName:layerSelectionChangedNotification
 	                                  object:@(tableView.selectedRow)];
