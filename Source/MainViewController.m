@@ -107,7 +107,11 @@
 	configStackView.orientation = NSUserInterfaceLayoutOrientationVertical;
 	configStackView.spacing = 0;
 
-	NSStackView *stackView = [NSStackView stackViewWithViews:@[ previewView, configStackView ]];
+	separator = [[NSBox alloc] init];
+	separator.boxType = NSBoxSeparator;
+
+	NSStackView *stackView =
+	        [NSStackView stackViewWithViews:@[ previewView, separator, configStackView ]];
 	stackView.spacing = 0;
 
 	stackView.translatesAutoresizingMaskIntoConstraints = NO;
