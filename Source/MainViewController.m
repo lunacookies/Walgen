@@ -64,100 +64,50 @@
 
 @implementation MainViewController
 {
-	PreviewView *previewView;
-	NSPanel *inspector;
-	NSPanel *layersPanel;
-
+	InspectorViewController *inspectorViewController;
+	LayersViewController *layersViewController;
 	WallpaperConfig *wallpaperConfig;
 	NSNotificationCenter *notificationCenter;
 }
 
 - (void)viewDidLoad
 {
-	self.title = @"Preview";
+	self.title = @"Walgen";
 
 	wallpaperConfig = [[WallpaperConfig alloc] init];
 	notificationCenter = [[NSNotificationCenter alloc] init];
 
-	previewView = [[PreviewView alloc] initWithWallpaperConfig:wallpaperConfig
-	                                        notificationCenter:notificationCenter];
+	PreviewView *previewView = [[PreviewView alloc] initWithWallpaperConfig:wallpaperConfig
+	                                                     notificationCenter:notificationCenter];
 
-	previewView.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview:previewView];
-	[NSLayoutConstraint activateConstraints:@[
-		[previewView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
-		[previewView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-		[previewView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-		[previewView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-	]];
-}
-
-- (void)viewDidAppear
-{
-	CGFloat panelMargin = 24;
-
-	NSRect windowContentRect =
-	        [self.view.window contentRectForFrameRect:self.view.window.frame];
-
-	NSRect inspectorContentRect = {0};
-
-	inspectorContentRect.origin = windowContentRect.origin;
-	inspectorContentRect.origin.x += windowContentRect.size.width + panelMargin;
-	inspectorContentRect.origin.y += windowContentRect.size.height;
-
-	inspectorContentRect.size.width = 1;
-	inspectorContentRect.size.height = 1;
-	inspectorContentRect.origin.y -= inspectorContentRect.size.height;
-
-	inspector = [[NSPanel alloc]
-	        initWithContentRect:inspectorContentRect
-	                  styleMask:NSWindowStyleMaskUtilityWindow | NSWindowStyleMaskTitled
-	                    backing:NSBackingStoreBuffered
-	                      defer:NO];
-
-	InspectorViewController *inspectorViewController =
+	inspectorViewController =
 	        [[InspectorViewController alloc] initWithWallpaperConfig:wallpaperConfig
 	                                              notificationCenter:notificationCenter];
-	inspectorViewController.view.frame = inspectorContentRect;
-	inspector.contentViewController = inspectorViewController;
 
-	[inspector bind:NSTitleBinding
-	           toObject:inspectorViewController
-	        withKeyPath:@"title"
-	            options:nil];
-
-	[inspector orderFront:nil];
-
-	NSRect layersPanelFrameRect = {0};
-
-	layersPanelFrameRect.size.width = inspectorViewController.view.frame.size.width;
-	layersPanelFrameRect.size.height = 300;
-
-	layersPanelFrameRect.origin = inspector.frame.origin;
-	layersPanelFrameRect.origin.y -= layersPanelFrameRect.size.height + panelMargin;
-
-	NSWindowStyleMask layersPanelStyleMask =
-	        NSWindowStyleMaskUtilityWindow | NSWindowStyleMaskTitled;
-	NSRect layersPanelContentRect = [NSPanel contentRectForFrameRect:layersPanelFrameRect
-	                                                       styleMask:layersPanelStyleMask];
-
-	layersPanel = [[NSPanel alloc] initWithContentRect:layersPanelContentRect
-	                                         styleMask:layersPanelStyleMask
-	                                           backing:NSBackingStoreBuffered
-	                                             defer:NO];
-
-	LayersViewController *layersViewController =
+	layersViewController =
 	        [[LayersViewController alloc] initWithWallpaperConfig:wallpaperConfig
 	                                           notificationCenter:notificationCenter];
-	layersViewController.view.frame = layersPanelContentRect;
-	layersPanel.contentViewController = layersViewController;
 
-	[layersPanel bind:NSTitleBinding
-	           toObject:layersViewController
-	        withKeyPath:@"title"
-	            options:nil];
+	NSBox *separator = [[NSBox alloc] init];
+	separator.boxType = NSBoxSeparator;
 
-	[layersPanel orderFront:nil];
+	NSStackView *configStackView = [NSStackView stackViewWithViews:@[
+		inspectorViewController.view, separator, layersViewController.view
+	]];
+	configStackView.orientation = NSUserInterfaceLayoutOrientationVertical;
+	configStackView.spacing = 0;
+
+	NSStackView *stackView = [NSStackView stackViewWithViews:@[ previewView, configStackView ]];
+	stackView.spacing = 0;
+
+	stackView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self.view addSubview:stackView];
+	[NSLayoutConstraint activateConstraints:@[
+		[stackView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+		[stackView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+		[stackView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+		[stackView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+	]];
 }
 
 - (void)export:(id)sender

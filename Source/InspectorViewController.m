@@ -19,7 +19,6 @@
                      notificationCenter:(NSNotificationCenter *)notificationCenter_
 {
 	self = [self init];
-	self.title = @"Inspector";
 	wallpaperConfig = wallpaperConfig_;
 	notificationCenter = notificationCenter_;
 	selectedLayerIndex = -1;

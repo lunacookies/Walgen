@@ -72,7 +72,6 @@ LayersViewController () <NSTableViewDelegate, NSTableViewDataSource>
                      notificationCenter:(NSNotificationCenter *)notificationCenter_
 {
 	self = [self init];
-	self.title = @"Layers";
 	wallpaperConfig = wallpaperConfig_;
 	notificationCenter = notificationCenter_;
 
