@@ -21,8 +21,18 @@
 	widthField.formatter = formatter;
 	heightField.formatter = formatter;
 
-	widthField.integerValue = 1920;
-	heightField.integerValue = 1080;
+	NSInteger screenWidthMax = 0;
+	NSInteger screenHeightMax = 0;
+
+	for (NSScreen *screen in NSScreen.screens)
+	{
+		NSSize screenResolution = [screen convertRectToBacking:screen.frame].size;
+		screenWidthMax = Max(screenWidthMax, (NSInteger)screenResolution.width);
+		screenHeightMax = Max(screenHeightMax, (NSInteger)screenResolution.height);
+	}
+
+	widthField.integerValue = screenWidthMax;
+	heightField.integerValue = screenHeightMax;
 
 	NSGridView *gridView = [NSGridView gridViewWithViews:@[
 		@[ [NSTextField labelWithString:@"Width:"], widthField ],
