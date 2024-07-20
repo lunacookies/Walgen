@@ -4,6 +4,7 @@ typedef struct
 	float noiseInfluence;
 	float noiseBias;
 	float noiseThreshold;
+	simd_uint2 noiseOffset;
 	uint32_t pixelSize;
 	MTLResourceID noiseTexture;
 } Arguments;
@@ -46,8 +47,8 @@ typedef struct
 
 	{
 		MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor alloc] init];
-		descriptor.width = 1024;
-		descriptor.height = 1024;
+		descriptor.width = noiseTextureDiameter;
+		descriptor.height = noiseTextureDiameter;
 		descriptor.pixelFormat = MTLPixelFormatR8Unorm;
 		descriptor.usage = MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
 		descriptor.storageMode = MTLStorageModePrivate;
@@ -98,26 +99,32 @@ typedef struct
 
 	[encoder setRenderPipelineState:pipelineState];
 
-	WallpaperLayer *wallpaperLayer = wallpaperConfig.layers[0];
-
 	CGColorSpaceRef cgColorSpace = CGColorSpaceCreateWithName(colorSpaceName);
 	NSColorSpace *colorSpace = [[NSColorSpace alloc] initWithCGColorSpace:cgColorSpace];
-	NSColor *backgroundColor = [wallpaperLayer.backgroundColor colorUsingColorSpace:colorSpace];
 
-	Arguments arguments = {0};
-	arguments.backgroundColor.r = (float)backgroundColor.redComponent;
-	arguments.backgroundColor.g = (float)backgroundColor.greenComponent;
-	arguments.backgroundColor.b = (float)backgroundColor.blueComponent;
-	arguments.noiseInfluence = wallpaperLayer.noiseInfluence;
-	arguments.noiseBias = wallpaperLayer.noiseBias;
-	arguments.noiseThreshold = wallpaperLayer.noiseThreshold;
-	arguments.pixelSize = wallpaperLayer.pixelSize;
-	arguments.noiseTexture = noiseTexture.gpuResourceID;
+	for (WallpaperLayer *wallpaperLayer in wallpaperConfig.layers)
+	{
+		NSColor *backgroundColor =
+		        [wallpaperLayer.backgroundColor colorUsingColorSpace:colorSpace];
 
-	[encoder useResource:noiseTexture usage:MTLResourceUsageRead stages:MTLRenderStageFragment];
-	[encoder setFragmentBytes:&arguments length:sizeof(arguments) atIndex:0];
+		Arguments arguments = {0};
+		arguments.backgroundColor.r = (float)backgroundColor.redComponent;
+		arguments.backgroundColor.g = (float)backgroundColor.greenComponent;
+		arguments.backgroundColor.b = (float)backgroundColor.blueComponent;
+		arguments.noiseInfluence = wallpaperLayer.noiseInfluence;
+		arguments.noiseBias = wallpaperLayer.noiseBias;
+		arguments.noiseThreshold = wallpaperLayer.noiseThreshold;
+		arguments.noiseOffset = wallpaperLayer.noiseOffset;
+		arguments.pixelSize = wallpaperLayer.pixelSize;
+		arguments.noiseTexture = noiseTexture.gpuResourceID;
 
-	[encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
+		[encoder useResource:noiseTexture
+		               usage:MTLResourceUsageRead
+		              stages:MTLRenderStageFragment];
+		[encoder setFragmentBytes:&arguments length:sizeof(arguments) atIndex:0];
+
+		[encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
+	}
 
 	[encoder endEncoding];
 

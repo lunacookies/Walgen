@@ -26,6 +26,7 @@ struct Arguments
 	float noise_influence;
 	float noise_bias;
 	float noise_threshold;
+	uint2 noise_offset;
 	uint pixel_size;
 	texture2d<float> noise_texture;
 };
@@ -62,13 +63,14 @@ FragmentMain(RasterizerData input [[stage_in]], constant Arguments &arguments)
 	        uint2(arguments.noise_texture.get_width(), arguments.noise_texture.get_height());
 
 	uint2 position = (uint2)input.position.xy / arguments.pixel_size;
-	float2 position_uv = ((float2)position + 0.5) / (float2)noise_texture_size;
+	float2 position_uv = ((float2)position + (float2)arguments.noise_offset + 0.5) /
+	                     (float2)noise_texture_size;
 
 	sampler sampler(address::repeat);
 	float random_float = arguments.noise_texture.sample(sampler, position_uv).r;
 	random_float = clamp(pow(random_float, arguments.noise_bias), 0.f, 1.f);
 	random_float *= step(arguments.noise_threshold, random_float);
 
-	return float4(
-	        arguments.background_color * mix(1, random_float, arguments.noise_influence), 1);
+	return float4(arguments.background_color, 1) *
+	       mix(1, random_float, arguments.noise_influence);
 }

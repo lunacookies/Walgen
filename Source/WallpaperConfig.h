@@ -3,6 +3,7 @@
 @property float noiseInfluence;
 @property float noiseBias;
 @property float noiseThreshold;
+@property simd_uint2 noiseOffset;
 @property uint32_t pixelSize;
 @end
 

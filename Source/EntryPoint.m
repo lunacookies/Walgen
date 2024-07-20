@@ -12,6 +12,8 @@ static NSNotificationName const layerColorChangedNotification = @"layerColorChan
 static NSNotificationName const layerSelectionChangedNotification =
         @"layerSelectionChangedNotification";
 
+static const NSUInteger noiseTextureDiameter = 1024;
+
 #define colorSpaceName kCGColorSpaceDisplayP3
 
 #define Min(x, y) (((x) < (y)) ? (x) : (y))
