@@ -1,3 +1,67 @@
+@interface ExportAccessoryView : NSView
+@property(readonly) NSInteger width;
+@property(readonly) NSInteger height;
+@end
+
+@implementation ExportAccessoryView
+{
+	NSTextField *widthField;
+	NSTextField *heightField;
+}
+
+- (instancetype)initWithFrame:(NSRect)frame
+{
+	self = [super initWithFrame:frame];
+
+	widthField = [[NSTextField alloc] init];
+	heightField = [[NSTextField alloc] init];
+
+	NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+	formatter.minimum = @1;
+	widthField.formatter = formatter;
+	heightField.formatter = formatter;
+
+	widthField.integerValue = 1920;
+	heightField.integerValue = 1080;
+
+	NSGridView *gridView = [NSGridView gridViewWithViews:@[
+		@[ [NSTextField labelWithString:@"Width:"], widthField ],
+		@[ [NSTextField labelWithString:@"Height:"], heightField ],
+	]];
+	gridView.rowAlignment = NSGridRowAlignmentFirstBaseline;
+
+	NSGridColumn *firstColumn = [gridView columnAtIndex:0];
+	firstColumn.xPlacement = NSGridCellPlacementTrailing;
+
+	gridView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self addSubview:gridView];
+	NSLayoutGuide *guide = self.layoutMarginsGuide;
+	[NSLayoutConstraint activateConstraints:@[
+		[gridView.topAnchor constraintEqualToAnchor:guide.topAnchor],
+		[gridView.bottomAnchor constraintEqualToAnchor:guide.bottomAnchor],
+		[gridView.leadingAnchor constraintGreaterThanOrEqualToAnchor:guide.leadingAnchor],
+		[guide.trailingAnchor constraintGreaterThanOrEqualToAnchor:gridView.trailingAnchor],
+		[gridView.centerXAnchor constraintEqualToAnchor:guide.centerXAnchor],
+		[gridView.centerYAnchor constraintEqualToAnchor:guide.centerYAnchor],
+		[widthField.widthAnchor constraintEqualToConstant:100],
+		[widthField.widthAnchor constraintEqualToAnchor:heightField.widthAnchor],
+	]];
+
+	return self;
+}
+
+- (NSInteger)width
+{
+	return widthField.integerValue;
+}
+
+- (NSInteger)height
+{
+	return heightField.integerValue;
+}
+
+@end
+
 @implementation MainViewController
 {
 	PreviewView *previewView;
@@ -102,6 +166,9 @@
 	savePanel.nameFieldLabel = @"Export As:";
 	savePanel.allowedContentTypes = @[ UTTypePNG ];
 
+	ExportAccessoryView *accessoryView = [[ExportAccessoryView alloc] init];
+	savePanel.accessoryView = accessoryView;
+
 	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
 	dateFormatter.dateFormat = @"yyyy-MM-dd 'at' HH.mm";
 	savePanel.nameFieldStringValue = [NSString stringWithFormat:@"Wallpaper at %@.png",
@@ -114,8 +181,8 @@
 		}
 
 		MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor alloc] init];
-		descriptor.width = 3840;
-		descriptor.height = 2160;
+		descriptor.width = (NSUInteger)accessoryView.width;
+		descriptor.height = (NSUInteger)accessoryView.height;
 		descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 		descriptor.pixelFormat = MTLPixelFormatRGBA16Float;
 
